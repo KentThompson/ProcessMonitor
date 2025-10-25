@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import type { NextPage } from "next";
-import { classify, listRecent } from "../lib/api";
+import { analyze, listRecent } from "../lib/api";
 
 const Home: NextPage = () => {
   const [action, setAction] = useState("");
@@ -31,7 +31,7 @@ const Home: NextPage = () => {
     setLoading(true);
     setResult(null);
     try {
-      const res = await classify({ action: action.trim(), guideline: guideline.trim() });
+      const res = await analyze({ action: action.trim(), guideline: guideline.trim() });
       setResult(res);
       // optimistic update for recent list
       setRecent(prev => [{ id: res.id, action, guideline, label: res.label, score: res.score, status: "success" }, ...prev].slice(0, 8));
@@ -46,17 +46,23 @@ const Home: NextPage = () => {
     <div className="container">
       <div className="card">
         <h1>ProcessMonitor</h1>
-        <p className="small">Submit an action and guideline to classify whether the action follows the guideline.</p>
+        <p className="small">Submit an action and guideline to analyze whether the action follows the guideline.</p>
 
         <form onSubmit={onSubmit} style={{ marginTop: 12 }}>
-          <div className="form-row">
-            <input value={action} onChange={e => setAction(e.target.value)} placeholder="Action (what happened)" />
-            <input value={guideline} onChange={e => setGuideline(e.target.value)} placeholder="Guideline (policy / rule)" />
-          </div>
-
-          <textarea value={action} onChange={e => setAction(e.target.value)} placeholder="Longer action description (optional)"/>
-          <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
-            <button type="submit" disabled={loading}>{loading ? "Classifying…" : "Classify"}</button>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <textarea 
+              value={action} 
+              onChange={e => setAction(e.target.value)} 
+              placeholder="Action (what happened)"
+              style={{ minHeight: "80px" }}
+            />
+            <textarea 
+              value={guideline} 
+              onChange={e => setGuideline(e.target.value)} 
+              placeholder="Guideline (policy / rule)"
+              style={{ minHeight: "80px" }}
+            />
+            <button type="submit" disabled={loading}>{loading ? "Analyzing…" : "Analyze"}</button>
           </div>
 
           {error && <div className="meta" style={{ color: "var(--error)", marginTop: 10 }}>{error}</div>}

@@ -16,9 +16,16 @@ router.post("/", async (req, res) => {
     return res.status(400).json({ error: "Both action and guideline are required" });
   }
 
+  const inputString = `Action: '${action}', Guideline: '${guideline}'.`;
+  const candidate_labels = [
+    "This action follows the guideline.",
+    "This action does not follow the guideline.",
+    "It is unclear whether this action follows the guideline."
+  ];
+
   const hfInput = {
-    inputs: action,
-    parameters: { candidate_labels: [guideline] }
+    inputs: inputString,
+    parameters: { candidate_labels }
   };
 
   const record = await prisma.classification.create({
